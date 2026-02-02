@@ -1,0 +1,9 @@
+{
+  "name": "cpp-project",
+  "version": "0.1.0",
+  "dependencies": [
+    "fmt",
+    "nlohmann-json"
+  ],
+  "builtin-baseline": "81389803b965f3a093d937a09f8942b08a3d6666"
+}
