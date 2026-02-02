@@ -1,16 +1,21 @@
-#include <iostream>
-#include <vector>
-#include <string>
+#include <wx/wx.h>
 
-using namespace std;
+class SimpleFrame : public wxFrame {
+public:
+    SimpleFrame() : wxFrame(nullptr, wxID_ANY, "CS3307 UI Test", wxDefaultPosition, wxSize(300, 200)) {
+        // Create a simple button as requested for the project UI
+        new wxButton(this, wxID_ANY, "Hello World Button", wxPoint(50, 60), wxSize(200, 40));
+    }
+};
 
-int main()
-{
-   vector<string> msg {"Hell0", "C++", "World", "from", "VS Code", "and the C++ extension!"};
+class SimpleApp : public wxApp {
+public:
+    virtual bool OnInit() {
+        SimpleFrame* frame = new SimpleFrame();
+        frame->Show(true);
+        return true;
+    }
+};
 
-   for (const string& word : msg)
-   {
-      cout << word << " ";
-   }
-   cout << endl;
-}
+// This macro replaces the standard main() for wxWidgets applications
+wxIMPLEMENT_APP(SimpleApp);

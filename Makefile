@@ -1,13 +1,13 @@
 # Compiler and tool configuration
 CXX = g++
-CXXFLAGS = `wx-config --cxxflags` -std=c++17 -g -Wall
-LIBS = `wx-config --libs`
+CXXFLAGS = $(shell wx-config --cxxflags) -std=c++17 -g -Wall -Iinclude
+LIBS = $(shell wx-config --libs)
 
 # Target executable name
 TARGET = FileManager
 
 # Source and object files
-SRCS = main.cpp
+SRCS = main.cpp src/App.cpp src/MainFrame.cpp src/FileManagerLogic.cpp
 OBJS = $(SRCS:.cpp=.o)
 
 # Default rule to build the project
