@@ -1,9 +1,16 @@
-#include <fmt/core.h>
-#include <nlohmann/json.hpp>
+#include <iostream>
+#include <vector>
+#include <string>
 
-int main() {
-    fmt::print("Environment verified.\n");
-    nlohmann::json test = {{"status", "WSL connected"}};
-    fmt::print("{}\n", test.dump(4));
-    return 0;
+using namespace std;
+
+int main()
+{
+   vector<string> msg {"Hell0", "C++", "World", "from", "VS Code", "and the C++ extension!"};
+
+   for (const string& word : msg)
+   {
+      cout << word << " ";
+   }
+   cout << endl;
 }
