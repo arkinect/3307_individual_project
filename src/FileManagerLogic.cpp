@@ -51,6 +51,13 @@ bool FileManagerLogic::CreateFolder(const std::string& name) {
 bool FileManagerLogic::RenameItem(const fs::path& oldPath, const std::string& newName) {
     try {
         fs::path newPath = oldPath.parent_path() / newName;
+
+        // prevent merging or overwriting if the target name is already taken
+        if (fs::exists(newPath)) {
+            SetError("An item with that name already exists in this folder.");
+            return false;
+        }
+
         fs::rename(oldPath, newPath);
         return true;
     } catch (const fs::filesystem_error& e) {
