@@ -7,7 +7,7 @@ LIBS = $(shell wx-config --libs)
 TARGET = FileManager
 
 # Source and object files
-SRCS = main.cpp src/App.cpp src/MainFrame.cpp src/FileManagerLogic.cpp
+SRCS = src/App.cpp src/MainFrame.cpp src/FileManagerLogic.cpp
 OBJS = $(SRCS:.cpp=.o)
 
 # Default rule to build the project
