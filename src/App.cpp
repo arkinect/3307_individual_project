@@ -7,20 +7,24 @@
 #include "App.h"
 #include "MainFrame.h"
 
-// Macro that generates the main() function for you
 wxIMPLEMENT_APP(MyApp);
 
+/*
+ * Function: OnInit
+ * Description: initializes the main application frame and displays it
+ * Parameters: none
+ * Returns: bool indicating success or failure of initialization
+ */
 bool MyApp::OnInit() {
-    // Create the main window instance
     MainFrame* frame = new MainFrame("CS3307 File Manager");
-    
-    // Make the window visible on screen
     frame->Show(true);
-    
-    // Return true to start the event loop; false would exit immediately
     return true;
 }
 
-MyApp::~MyApp() {
-    // wxWidgets handles cleanup of the MainFrame automatically
-}
+/*
+ * Function: ~MyApp
+ * Description: destructor for MyApp class
+ * Parameters: none
+ * Returns: void
+ */
+MyApp::~MyApp() {}

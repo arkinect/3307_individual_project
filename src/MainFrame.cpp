@@ -19,6 +19,12 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(ID_PASTE, MainFrame::OnPaste)
 wxEND_EVENT_TABLE()
 
+/*
+ * Function: MainFrame
+ * Description: constructor for MainFrame class that initializes the main window UI components
+ * Parameters: title: the title to be displayed in the main window's title bar
+ * Returns: void
+ */
 MainFrame::MainFrame(const wxString& title) 
     : wxFrame(NULL, wxID_ANY, title, wxDefaultPosition, wxSize(800, 600)) {
     
@@ -31,6 +37,12 @@ MainFrame::MainFrame(const wxString& title)
     UpdateList();
 }
 
+/*
+ * Function: ~MainFrame
+ * Description: destructor for MainFrame class that handles any necessary cleanup of UI resources
+ * Parameters: none
+ * Returns: void
+ */
 MainFrame::~MainFrame() {}
 
 void MainFrame::CreateControls() {
@@ -51,6 +63,12 @@ void MainFrame::CreateControls() {
     panel->SetSizer(mainSizer);
 }
 
+/*
+ * Function: UpdateList
+ * Description: updates the file list control with the contents of the current working directory
+ * Parameters: none
+ * Returns: void
+ */
 void MainFrame::UpdateList() {
     m_fileList->DeleteAllItems();
     
@@ -74,10 +92,22 @@ void MainFrame::UpdateList() {
     }
 }
 
+/*
+ * Function: OnExit
+ * Description: handles the exit event for the main frame window
+ * Parameters: event: the wxCommandEvent object representing the exit event
+ * Returns: void
+ */
 void MainFrame::OnExit(wxCommandEvent& event) {
     Close(true);
 }
 
+/*
+ * Function: OnItemActivated
+ * Description: handles the event when a list item is activated
+ * Parameters: event: the wxListEvent object representing the activation event
+ * Returns: void
+ */
 void MainFrame::OnItemActivated(wxListEvent& event) {
     long index = event.GetIndex();
     wxString itemName = m_fileList->GetItemText(index, 0);
@@ -106,6 +136,12 @@ void MainFrame::OnItemActivated(wxListEvent& event) {
     }
 }
 
+/*
+ * Function: OnPathEnter
+ * Description: handles the event when a path is entered in the path bar
+ * Parameters: event: the wxCommandEvent object representing the path entry event
+ * Returns: void
+ */
 void MainFrame::OnPathEnter(wxCommandEvent& event) {
     std::string typedPath = m_pathBar->GetValue().ToStdString();
     fs::path newPath(typedPath);
@@ -119,6 +155,12 @@ void MainFrame::OnPathEnter(wxCommandEvent& event) {
     }
 }
 
+/*
+ * Function: SetupMenuBar
+ * Description: sets up the menu bar with File and Edit menus and their respective items
+ * Parameters: none
+ * Returns: void
+ */
 void MainFrame::SetupMenuBar() {
     wxMenuBar* menuBar = new wxMenuBar();
 
@@ -142,6 +184,12 @@ void MainFrame::SetupMenuBar() {
     SetMenuBar(menuBar);
 }
 
+/*
+ * Function: OnCreateFolder
+ * Description: handles the event when a new folder is created
+ * Parameters: event: the wxCommandEvent object representing the folder creation event
+ * Returns: void
+ */
 void MainFrame::OnCreateFolder(wxCommandEvent& event) {
     wxTextEntryDialog dialog(this, "Enter folder name:", "New Folder");
     
@@ -154,6 +202,12 @@ void MainFrame::OnCreateFolder(wxCommandEvent& event) {
     }
 }
 
+/*
+ * Function: OnRename
+ * Description: handles the event when an item is renamed
+ * Parameters: event: the wxCommandEvent object representing the rename event
+ * Returns: void
+ */
 void MainFrame::OnRename(wxCommandEvent& event) {
     long index = m_fileList->GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
     if (index != -1) {
@@ -171,6 +225,12 @@ void MainFrame::OnRename(wxCommandEvent& event) {
     }
 }
 
+/*
+ * Function: OnDelete
+ * Description: handles the event when an item is deleted
+ * Parameters: event: the wxCommandEvent object representing the delete event
+ * Returns: void
+ */
 void MainFrame::OnDelete(wxCommandEvent& event) {
     long index = m_fileList->GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
     if (index != -1) {
@@ -187,6 +247,12 @@ void MainFrame::OnDelete(wxCommandEvent& event) {
     }
 }
 
+/*
+ * Function: OnCopy
+ * Description: handles the event when an item is copied
+ * Parameters: event: the wxCommandEvent object representing the copy event
+ * Returns: void
+ */
 void MainFrame::OnCopy(wxCommandEvent& event) {
     long index = m_fileList->GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
     if (index != -1) {
@@ -196,6 +262,12 @@ void MainFrame::OnCopy(wxCommandEvent& event) {
     }
 }
 
+/*
+ * Function: OnCut
+ * Description: handles the event when an item is cut
+ * Parameters: event: the wxCommandEvent object representing the cut event
+ * Returns: void
+ */
 void MainFrame::OnCut(wxCommandEvent& event) {
     long index = m_fileList->GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
     if (index != -1) {
@@ -205,6 +277,12 @@ void MainFrame::OnCut(wxCommandEvent& event) {
     }
 }
 
+/*
+ * Function: OnPaste
+ * Description: handles the event when an item is pasted
+ * Parameters: event: the wxCommandEvent object representing the paste event
+ * Returns: void
+ */
 void MainFrame::OnPaste(wxCommandEvent& event) {
     fs::path source = m_logic.GetClipboardPath();
     if (source.empty()) return;

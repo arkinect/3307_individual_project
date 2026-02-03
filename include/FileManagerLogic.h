@@ -17,7 +17,7 @@ namespace fs = std::filesystem;
 struct FileEntry {
     std::string name;
     std::string type;
-    std::string size;     // for human readable size
+    std::string size;
     std::string modified; // for date
     bool isDirectory;
 };
@@ -29,22 +29,18 @@ public:
     FileManagerLogic();
     ~FileManagerLogic();
 
-    // core operations
     bool CreateFolder(const std::string& name);
     bool RenameItem(const fs::path& oldPath, const std::string& newName);
     bool DeleteItem(const fs::path& path);
 
-    // virtual clipboard operations
     void Copy(const fs::path& source);
     void Cut(const fs::path& source);
     bool Paste(const fs::path& destination, bool overwriteConfirmed = false);
 
-    // navigation / directory listing
     std::vector<FileEntry> GetDirectoryContents(const fs::path& path);
     fs::path GetCurrentPath() const { return m_currentPath; }
     void SetCurrentPath(const fs::path& path) { m_currentPath = path; }
 
-    // helpers / error handling
     static std::string FormatSize(uintmax_t size);
     std::string GetLastError() const { return m_lastError; }
     fs::path GetClipboardPath() const { return m_clipboardSource; }

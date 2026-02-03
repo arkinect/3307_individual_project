@@ -13,11 +13,10 @@
 
 class MainFrame : public wxFrame {
 public:
-    // Initializes the main window with a title and dimensions
     MainFrame(const wxString& title);
     virtual ~MainFrame();
 
-    // Disable copy constructor and assignment operator
+    // disallow multiple instances
     MainFrame(const MainFrame&) = delete;
     MainFrame& operator=(const MainFrame&) = delete;
 
@@ -31,15 +30,13 @@ private:
         ID_CREATE_FOLDER
     };
 
-    // Setup methods to keep the constructor clean
     void CreateControls();
     void UpdateList();
     void SetupMenuBar();
     
-
-    // Event handlers for user interactions
+    // event handlers
     void OnExit(wxCommandEvent& event);
-    void OnItemActivated(wxListEvent& event); // Triggered by double-clicking items
+    void OnItemActivated(wxListEvent& event);
     void OnPathEnter(wxCommandEvent& event);
     void OnCreateFolder(wxCommandEvent& event);
     void OnRename(wxCommandEvent& event);
@@ -48,12 +45,12 @@ private:
     void OnCut(wxCommandEvent& event);
     void OnPaste(wxCommandEvent& event);
 
-    // UI Components as specified in the assignment requirements
-    wxListCtrl* m_fileList;    // Displays file name, type, size, and date
-    wxTextCtrl* m_pathBar;     // Allows user to type or view the current path
-    FileManagerLogic m_logic;  // Object that handles actual disk operations
+    // UI components 
+    wxListCtrl* m_fileList;
+    wxTextCtrl* m_pathBar;
+    FileManagerLogic m_logic;
 
-    // Tells wxWidgets this class handles its own events
+    // class handles own events
     wxDECLARE_EVENT_TABLE();
 };
 

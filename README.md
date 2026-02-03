@@ -5,6 +5,9 @@ A file explorer with basic interaction. Built for linux on wsl.
 make to build
 ./FileManager to run
 
+# Note on comments throughout
+I added comments for functions to the .cpp files as the functions are the same between the .h and .cpp files, it seems irrelevant to add to both
+
 # Note on Opening Files
 ngl I have no idea how this will run outside of the context of wsl. 
 As of right now, I've built in functionality so that it attempts to open files with ubuntu defaults as specified by the widget package, 
