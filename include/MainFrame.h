@@ -26,6 +26,7 @@ private:
     void OnRefresh(wxCommandEvent& event);
     void OnExit(wxCommandEvent& event);
     void OnItemActivated(wxListEvent& event); // Triggered by double-clicking items
+    void OnPathEnter(wxCommandEvent& event);
 
     // Tells wxWidgets this class handles its own events
     wxDECLARE_EVENT_TABLE();

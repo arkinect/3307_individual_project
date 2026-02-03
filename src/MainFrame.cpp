@@ -4,6 +4,7 @@
 wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
     EVT_MENU(wxID_EXIT, MainFrame::OnExit)
     EVT_LIST_ITEM_ACTIVATED(wxID_ANY, MainFrame::OnItemActivated)
+    EVT_TEXT_ENTER(wxID_ANY, MainFrame::OnPathEnter)
 wxEND_EVENT_TABLE()
 
 MainFrame::MainFrame(const wxString& title) 
@@ -24,7 +25,7 @@ void MainFrame::CreateControls() {
     wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
 
     // Path bar for address input/display
-    m_pathBar = new wxTextCtrl(panel, wxID_ANY, m_logic.GetCurrentPath().string());
+    m_pathBar = new wxTextCtrl(panel, wxID_ANY, m_logic.GetCurrentPath().string(), wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
     mainSizer->Add(m_pathBar, 0, wxEXPAND | wxALL, 5);
 
     // Initialize the list control in "Report" mode (grid view)
@@ -43,17 +44,24 @@ void MainFrame::CreateControls() {
 void MainFrame::UpdateList() {
     m_fileList->DeleteAllItems();
     
-    // Get real filesystem data from our logic class
-    auto entries = m_logic.GetDirectoryContents(m_logic.GetCurrentPath());
+    fs::path current = m_logic.GetCurrentPath();
     
-    for (size_t i = 0; i < entries.size(); ++i) {
-        // Insert name into the first column
-        long index = m_fileList->InsertItem(i, entries[i].name);
-        
-        // Populate the remaining columns
-        m_fileList->SetItem(index, 1, entries[i].type);
-        m_fileList->SetItem(index, 2, entries[i].size);
-        m_fileList->SetItem(index, 3, entries[i].modified);
+    // Add ".." entry if a parent directory exists
+    if (current.has_parent_path() && current != current.root_path()) {
+        long index = m_fileList->InsertItem(0, "..");
+        m_fileList->SetItem(index, 1, "Folder");
+        m_fileList->SetItem(index, 2, "--");
+        m_fileList->SetItem(index, 3, "--");
+    }
+
+    auto entries = m_logic.GetDirectoryContents(current);
+    
+    for (const auto& entry : entries) {
+        // Use GetItemCount() to always append to the end of the list
+        long index = m_fileList->InsertItem(m_fileList->GetItemCount(), entry.name);
+        m_fileList->SetItem(index, 1, entry.type);
+        m_fileList->SetItem(index, 2, entry.size);
+        m_fileList->SetItem(index, 3, entry.modified);
     }
 }
 
@@ -61,6 +69,50 @@ void MainFrame::OnExit(wxCommandEvent& event) {
     Close(true);
 }
 
-// Stubs for next steps
-void MainFrame::OnItemActivated(wxListEvent& event) { /* Navigation logic here */ }
+void MainFrame::OnItemActivated(wxListEvent& event) {
+    // Get the index of the double-clicked item
+    long index = event.GetIndex();
+    
+    // Retrieve the name of the file/folder from the first column
+    wxString itemName = m_fileList->GetItemText(index, 0);
+    
+    // Construct the potential new path
+    fs::path newPath = (m_logic.GetCurrentPath() / itemName.ToStdString()).lexically_normal();
+
+    if (fs::is_directory(newPath)) {
+        m_logic.SetCurrentPath(newPath);
+        m_pathBar->SetValue(newPath.string()); 
+        UpdateList();
+    }
+
+    // Only navigate if it's actually a directory
+    if (fs::is_directory(newPath)) {
+        m_logic.SetCurrentPath(newPath);
+        m_pathBar->SetValue(newPath.string()); // Update the UI address bar
+        UpdateList(); // Refresh the file list view
+    } else if (fs::exists(newPath)) {
+        // Requirement: Open file using system's default application
+        wxString pathString = wxString::FromUTF8(newPath.string().c_str());
+        
+        if (!wxLaunchDefaultApplication(pathString)) {
+            wxMessageBox("Could not open the file with the default application.", 
+                         "Error", wxOK | wxICON_ERROR);
+        }
+    }
+}
+
+void MainFrame::OnPathEnter(wxCommandEvent& event) {
+    std::string typedPath = m_pathBar->GetValue().ToStdString();
+    fs::path newPath(typedPath);
+
+    if (fs::exists(newPath) && fs::is_directory(newPath)) {
+        m_logic.SetCurrentPath(newPath);
+        UpdateList();
+    } else {
+        // Simple feedback if the path is invalid
+        wxMessageBox("The directory does not exist.", "Navigation Error", wxOK | wxICON_ERROR);
+        // Reset the bar to the actual current path
+        m_pathBar->SetValue(m_logic.GetCurrentPath().string());
+    }
+}
 void MainFrame::SetupMenuBar() { /* File/Edit menu logic here */ }
