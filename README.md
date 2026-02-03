@@ -1,7 +1,19 @@
-# 3307_individual_project
-* **User Interface**: Implement a file listing showing name, type, size, and modified date, alongside an editable path bar, a status bar for updates, and dialogs for errors or user input.
-* **Core Operations**: Enable opening files using system defaults, directory navigation via double-clicking, and creating, renaming, or deleting items with mandatory confirmation.
-* **Virtual Clipboard**: Support cutting, copying, and pasting files by tracking paths, including logic to prompt the user before overwriting existing files.
-* **Technical Framework**: Hand-code the GUI in C++ using **wxWidgets** (version 3.0+) and manage all filesystem interactions through the **C++17 `<filesystem>` library**.
-* **Structure and Build**: Organize code into classes with separate header and source files, provide a **Makefile**, and ensure all menu operations include keyboard shortcuts.
-* **Refresh and Exit**: Provide functionality to manually refresh the directory listing and a standard exit option for the application.
+# Project Overview
+A file explorer with basic interaction. Built for linux on wsl. 
+
+# Running 
+make to build
+./FileManager to run
+
+# Note on Opening Files
+ngl I have no idea how this will run outside of the context of wsl. 
+As of right now, I've built in functionality so that it attempts to open files with ubuntu defaults as specified by the widget package, 
+and if it cant attempts to open with windows defaults.
+
+# Credit 
+Mathew Lane
+251230373
+Feb 2, 2026
+
+# List of bugs I have found
+renaming a folder to something the same as an existing folder combines the two into one (this onoly applies if the one not being renamed is empty)

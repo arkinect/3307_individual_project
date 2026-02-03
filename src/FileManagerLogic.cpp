@@ -1,3 +1,9 @@
+/*
+ * Author: Mathew Lane
+ * Description: <short file description>
+ * Date: 2026-02-02
+ */
+
 #include "FileManagerLogic.h"
 #include <iomanip>
 #include <sstream>
@@ -6,6 +12,10 @@
 // Core Operations Implementation
 FileManagerLogic::FileManagerLogic() : m_lastOp(ClipboardOp::NONE) {
     m_currentPath = fs::current_path();
+}
+
+FileManagerLogic::~FileManagerLogic() {
+    // Standard cleanup; filesystem paths handle their own memory
 }
 
 bool FileManagerLogic::CreateFolder(const std::string& name) {
@@ -61,10 +71,21 @@ bool FileManagerLogic::Paste(const fs::path& destination, bool overwriteConfirme
 
         fs::path target = destination / m_clipboardSource.filename();
 
-        // Check for overwrite requirements
-        if (fs::exists(target) && !overwriteConfirmed) {
-            SetError("File already exists.");
-            return false;
+        // 1. Check if source and target are the same location
+        if (fs::exists(target) && fs::equivalent(m_clipboardSource, target)) {
+            // Simply return true because the "work" is already done
+            m_clipboardSource.clear();
+            m_lastOp = ClipboardOp::NONE;
+            return true; 
+        }
+
+        // 2. Handle overwrite logic for DIFFERENT locations
+        if (fs::exists(target)) {
+            if (!overwriteConfirmed) {
+                SetError("File already exists.");
+                return false;
+            }
+            fs::remove_all(target); 
         }
 
         if (m_lastOp == ClipboardOp::COPY) {
@@ -72,9 +93,10 @@ bool FileManagerLogic::Paste(const fs::path& destination, bool overwriteConfirme
             fs::copy(m_clipboardSource, target, fs::copy_options::recursive | fs::copy_options::overwrite_existing);
         } else if (m_lastOp == ClipboardOp::CUT) {
             fs::rename(m_clipboardSource, target);
-            m_lastOp = ClipboardOp::NONE; // Reset after a move
-            m_clipboardSource.clear();
         }
+        m_lastOp = ClipboardOp::NONE; // Reset after a move
+        m_clipboardSource.clear();
+
         return true;
     } catch (const fs::filesystem_error& e) {
         SetError(e.what());

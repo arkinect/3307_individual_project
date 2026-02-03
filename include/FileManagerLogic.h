@@ -1,3 +1,9 @@
+/*
+ * Author: Mathew Lane
+ * Description: <short file description>
+ * Date: 2026-02-02
+ */
+
 #ifndef FILE_MANAGER_LOGIC_H
 #define FILE_MANAGER_LOGIC_H
 
@@ -21,25 +27,27 @@ public:
     enum class ClipboardOp { COPY, CUT, NONE };
 
     FileManagerLogic();
+    ~FileManagerLogic();
 
-    // navigation
-    std::vector<FileEntry> GetDirectoryContents(const fs::path& path);
-    fs::path GetCurrentPath() const { return m_currentPath; }
-    void SetCurrentPath(const fs::path& path) { m_currentPath = path; }
-
-    // file operations
+    // core operations
     bool CreateFolder(const std::string& name);
     bool RenameItem(const fs::path& oldPath, const std::string& newName);
     bool DeleteItem(const fs::path& path);
-    
-    // clip board operations
+
+    // virtual clipboard operations
     void Copy(const fs::path& source);
     void Cut(const fs::path& source);
     bool Paste(const fs::path& destination, bool overwriteConfirmed = false);
 
-    // error handling
-    std::string GetLastError() const { return m_lastError; }
+    // navigation / directory listing
+    std::vector<FileEntry> GetDirectoryContents(const fs::path& path);
+    fs::path GetCurrentPath() const { return m_currentPath; }
+    void SetCurrentPath(const fs::path& path) { m_currentPath = path; }
+
+    // helpers / error handling
     static std::string FormatSize(uintmax_t size);
+    std::string GetLastError() const { return m_lastError; }
+    fs::path GetClipboardPath() const { return m_clipboardSource; }
 
 private:
     fs::path m_currentPath;
