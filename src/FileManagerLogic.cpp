@@ -1,6 +1,6 @@
 /*
  * Author: Mathew Lane
- * Description: <short file description>
+ * Description: Implements filesystem operations like copying, deleting, and renaming while providing error messaging to the UI.
  * Date: 2026-02-02
  */
 

@@ -1,6 +1,6 @@
 /*
  * Author: Mathew Lane
- * Description: <short file description>
+ * Description: Defines the UI window class, interface component pointers, and private event handler declarations.
  * Date: 2026-02-02
  */
 
@@ -17,6 +17,10 @@ public:
     MainFrame(const wxString& title);
     virtual ~MainFrame();
 
+    // Disable copy constructor and assignment operator
+    MainFrame(const MainFrame&) = delete;
+    MainFrame& operator=(const MainFrame&) = delete;
+
 private:
     enum {
         ID_RENAME = 1,
@@ -29,8 +33,9 @@ private:
 
     // Setup methods to keep the constructor clean
     void CreateControls();
-    void SetupMenuBar();
     void UpdateList();
+    void SetupMenuBar();
+    
 
     // Event handlers for user interactions
     void OnExit(wxCommandEvent& event);

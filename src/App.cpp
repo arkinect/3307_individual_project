@@ -1,6 +1,6 @@
 /*
  * Author: Mathew Lane
- * Description: <short file description>
+ * Description: Implements the OnInit function to instantiate and display the main application frame.
  * Date: 2026-02-02
  */
 

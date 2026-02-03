@@ -1,6 +1,6 @@
 /*
  * Author: Mathew Lane
- * Description: <short file description>
+ * Description: Declares the core logic class responsible for managing the current path and virtual clipboard state.
  * Date: 2026-02-02
  */
 

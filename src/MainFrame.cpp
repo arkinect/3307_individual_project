@@ -1,6 +1,6 @@
 /*
  * Author: Mathew Lane
- * Description: <short file description>
+ * Description: Handles the graphical layout construction, menu bar setup, and connects UI events to backend logic.
  * Date: 2026-02-02
  */
 
@@ -8,19 +8,12 @@
 
 // Define the event table to map GUI events to class functions
 wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
-    // Application Controls
     EVT_MENU(wxID_EXIT, MainFrame::OnExit)
-    
-    // File Navigation & Interaction
     EVT_TEXT_ENTER(wxID_ANY, MainFrame::OnPathEnter)
     EVT_LIST_ITEM_ACTIVATED(wxID_ANY, MainFrame::OnItemActivated)
-    
-    // File Operations
     EVT_MENU(ID_CREATE_FOLDER, MainFrame::OnCreateFolder)
     EVT_MENU(ID_RENAME, MainFrame::OnRename)
     EVT_MENU(ID_DELETE, MainFrame::OnDelete)
-    
-    // Virtual Clipboard Operations
     EVT_MENU(ID_COPY, MainFrame::OnCopy)
     EVT_MENU(ID_CUT, MainFrame::OnCut)
     EVT_MENU(ID_PASTE, MainFrame::OnPaste)
@@ -34,29 +27,21 @@ MainFrame::MainFrame(const wxString& title)
     CreateStatusBar(2);
     SetStatusText("Ready", 0);
     
-    // Initial load of the current directory
+    // initial load of cd
     UpdateList();
 }
 
-MainFrame::~MainFrame() {
-    // Child UI elements (m_fileList, etc.) are deleted by the wxFrame parent
-}
+MainFrame::~MainFrame() {}
 
 void MainFrame::CreateControls() {
-    // Main panel to hold all UI elements
     wxPanel* panel = new wxPanel(this);
-    
-    // Vertical sizer to stack the path bar and the file list
     wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
 
-    // Path bar for address input/display
     m_pathBar = new wxTextCtrl(panel, wxID_ANY, m_logic.GetCurrentPath().string(), wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
     mainSizer->Add(m_pathBar, 0, wxEXPAND | wxALL, 5);
 
-    // Initialize the list control in "Report" mode (grid view)
     m_fileList = new wxListCtrl(panel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT | wxLC_SINGLE_SEL);
     
-    // Requirement: Add the four mandatory columns
     m_fileList->InsertColumn(0, "Name", wxLIST_FORMAT_LEFT, 300);
     m_fileList->InsertColumn(1, "Type", wxLIST_FORMAT_LEFT, 100);
     m_fileList->InsertColumn(2, "Size", wxLIST_FORMAT_RIGHT, 100);
@@ -71,7 +56,7 @@ void MainFrame::UpdateList() {
     
     fs::path current = m_logic.GetCurrentPath();
     
-    // Add ".." entry if a parent directory exists
+    // add .. entry to go back
     if (current.has_parent_path() && current != current.root_path()) {
         long index = m_fileList->InsertItem(0, "..");
         m_fileList->SetItem(index, 1, "Folder");
@@ -82,7 +67,6 @@ void MainFrame::UpdateList() {
     auto entries = m_logic.GetDirectoryContents(current);
     
     for (const auto& entry : entries) {
-        // Use GetItemCount() to always append to the end of the list
         long index = m_fileList->InsertItem(m_fileList->GetItemCount(), entry.name);
         m_fileList->SetItem(index, 1, entry.type);
         m_fileList->SetItem(index, 2, entry.size);
@@ -95,13 +79,8 @@ void MainFrame::OnExit(wxCommandEvent& event) {
 }
 
 void MainFrame::OnItemActivated(wxListEvent& event) {
-    // Get the index of the double-clicked item
     long index = event.GetIndex();
-    
-    // Retrieve the name of the file/folder from the first column
     wxString itemName = m_fileList->GetItemText(index, 0);
-    
-    // Construct the potential new path
     fs::path newPath = (m_logic.GetCurrentPath() / itemName.ToStdString()).lexically_normal();
 
     if (fs::is_directory(newPath)) {
@@ -110,24 +89,16 @@ void MainFrame::OnItemActivated(wxListEvent& event) {
         UpdateList();
     }
 
-    // Only navigate if it's actually a directory
-    if (fs::is_directory(newPath)) {
+    if (fs::is_directory(newPath)) { // if directory
         m_logic.SetCurrentPath(newPath);
-        m_pathBar->SetValue(newPath.string()); // Update the UI address bar
-        UpdateList(); // Refresh the file list view
-    } else if (fs::exists(newPath)) {
+        m_pathBar->SetValue(newPath.string());
+        UpdateList();
+    } else if (fs::exists(newPath)) { // if file
         wxString pathString = wxString::FromUTF8(newPath.string().c_str());
-
-        // 1. First attempt: Linux native default
-        if (!wxLaunchDefaultApplication(pathString)) {
+        if (!wxLaunchDefaultApplication(pathString)) { // try linux default
+            wxString wslCommand = wxString::Format("wslview \"%s\"", pathString); // try windows default via wsl
             
-            // 2. Second attempt: Fallback to Windows via wslview
-            wxString wslCommand = wxString::Format("wslview \"%s\"", pathString);
-            
-            // wxExecute returns -1 if the command itself fails to run
-            if (wxExecute(wslCommand, wxEXEC_ASYNC) == -1) {
-                
-                // 3. Final Fallback: Display error message
+            if (wxExecute(wslCommand, wxEXEC_ASYNC) == -1) { // if neither worked show error message
                 wxMessageBox("Could not open the file with Linux or Windows applications.", 
                             "Open Error", wxOK | wxICON_ERROR);
             }
@@ -143,9 +114,7 @@ void MainFrame::OnPathEnter(wxCommandEvent& event) {
         m_logic.SetCurrentPath(newPath);
         UpdateList();
     } else {
-        // Simple feedback if the path is invalid
         wxMessageBox("The directory does not exist.", "Navigation Error", wxOK | wxICON_ERROR);
-        // Reset the bar to the actual current path
         m_pathBar->SetValue(m_logic.GetCurrentPath().string());
     }
 }
@@ -170,7 +139,7 @@ void MainFrame::SetupMenuBar() {
     menuBar->Append(fileMenu, "&File");
     menuBar->Append(editMenu, "&Edit");
 
-    SetMenuBar(menuBar); // This attaches it to the very top of the window
+    SetMenuBar(menuBar);
 }
 
 void MainFrame::OnCreateFolder(wxCommandEvent& event) {
@@ -243,11 +212,10 @@ void MainFrame::OnPaste(wxCommandEvent& event) {
     fs::path target = m_logic.GetCurrentPath() / source.filename();
     bool overwrite = false;
 
-    // Check if the file already exists at the destination
     if (fs::exists(target)) {
         int answer = wxMessageBox("File already exists. Would you like to overwrite it?", 
                                   "Confirm Overwrite", wxYES_NO | wxICON_QUESTION);
-        if (answer != wxYES) return; // User cancelled the operation
+        if (answer != wxYES) return;
         overwrite = true;
     }
 
